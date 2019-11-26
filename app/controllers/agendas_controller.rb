@@ -1,5 +1,5 @@
 class AgendasController < ApplicationController
-  # before_action :set_agenda, only: %i[show edit update destroy]
+  before_action :set_agenda, only: %i[show edit update destroy]
 
   def index
     @agendas = Agenda.all
@@ -22,8 +22,14 @@ class AgendasController < ApplicationController
   end
 
   def destroy
-    if @agenda.destroy
-      redirect_to dashboard_path
+    if current_user == @agenda.user || current_user == @agenda.team.owner
+      if @agenda.destroy
+        redirect_to dashboard_path, notice: "アジェンダを削除しました。"
+      else
+        redirect_to dashboard_path, notice: "アジェンダの削除に失敗しました。"
+      end
+    else
+      redirect_to dashboard_path, notice: "アジェンダを削除できるのは「アジェンダの作成者」と「チームの作成者」だけです。"
     end
   end
 
